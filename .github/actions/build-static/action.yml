@@ -1,0 +1,39 @@
+name: Build Static Site
+description: Install dependencies and build the Next.js static export for GitHub Pages
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: "22"
+  github-pages:
+    description: Set GITHUB_PAGES for basePath
+    required: false
+    default: "true"
+  output-path:
+    description: Static export output directory
+    required: false
+    default: out
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build static export
+      shell: bash
+      run: npm run build
+      env:
+        GITHUB_PAGES: ${{ inputs.github-pages }}
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ inputs.output-path }}
